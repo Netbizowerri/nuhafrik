@@ -1,0 +1,7 @@
+{
+  "name": "Nuhafrik Clothing & Accessories",
+  "description": "Premium African-inspired fashion store blending heritage with global style. Shop clothing, accessories, and more with real-time order tracking.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
