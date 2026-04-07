@@ -251,13 +251,13 @@ export const HomePage = () => {
               {
                 title: 'Clothing',
                 copy: 'Fluid tailoring and clean seasonal layers.',
-                image: 'https://picsum.photos/seed/nuhafrik-clothing/700/900',
+                image: 'https://i.ibb.co/Q3KCSVLK/Nuhafrik-1.jpg',
                 route: '/shop?category=clothing',
               },
               {
                 title: 'Accessories',
                 copy: 'Texture-rich finishing pieces with presence.',
-                image: 'https://picsum.photos/seed/nuhafrik-accessories/700/900',
+                image: 'https://i.ibb.co/WN28jncV/Nuhafrik-2.jpg',
                 route: '/shop?category=accessories',
               },
             ].map((item) => (
