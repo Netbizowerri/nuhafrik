@@ -61,7 +61,7 @@ export const ShopPage = () => {
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             {[
-              { label: 'Available pieces', value: String(products.length).padStart(2, '0') },
+              { label: 'Guranteed Quality', value: 'Yes' },
               { label: 'Fast delivery', value: 'NG' },
               { label: 'Crafted finish', value: 'Yes' },
             ].map((item) => (

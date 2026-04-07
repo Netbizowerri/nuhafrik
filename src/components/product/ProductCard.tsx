@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag, Star } from 'lucide-react';
+import { Heart, ShoppingBag } from 'lucide-react';
 import { Product } from '../../types';
 import { formatCurrency, cn } from '../../lib/utils';
 import { useCartStore } from '../../store/useCartStore';
@@ -102,14 +102,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
         <Link to={`/product/${product.id}`} className="product-title-clamp text-base font-semibold text-[var(--color-text-primary)]">
           {product.name}
         </Link>
-        <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
-          <span className="inline-flex items-center gap-1 text-[var(--color-primary)]">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Star key={index} size={12} fill="currentColor" strokeWidth={0} />
-            ))}
-          </span>
-          <span>(24 reviews)</span>
-        </div>
         <div className="flex items-end gap-3">
           <span className="text-xl font-bold tracking-[var(--tracking-tight)] text-[var(--color-primary)]">
             {formatCurrency(product.pricing.selling_price)}

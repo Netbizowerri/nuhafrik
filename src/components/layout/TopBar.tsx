@@ -29,8 +29,8 @@ export const TopBar = () => {
   return (
     <>
       <header className="sticky top-0 z-50">
-        <div className="flex h-10 items-center justify-center bg-[var(--color-primary)] px-4 text-center text-sm font-medium tracking-[0.025em] text-[var(--color-text-inverse)]">
-          Discover elevated African essentials with nationwide delivery from Abuja.
+        <div className="mb-2 flex h-10 items-center justify-center bg-[var(--color-primary)] px-4 text-center text-sm font-medium tracking-[0.025em] text-[var(--color-text-inverse)] md:mb-0">
+          Deliveries Nationwide
         </div>
         <div
           className={cn(

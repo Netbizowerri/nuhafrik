@@ -94,11 +94,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
             <div className="brand-divider bg-white/10" />
 
-            <div className="relative flex-1 overflow-hidden px-6 py-8">
+            <div className="relative min-h-0 flex-1 overflow-hidden">
               <motion.div
                 animate={{ x: view === 'main' ? 0 : '-100%' }}
                 transition={{ duration: 0.3 }}
-                className="absolute inset-0 flex flex-col px-6 py-8"
+                className="absolute inset-0 flex flex-col overflow-y-auto px-6 py-8 no-scrollbar"
               >
                 <p className="eyebrow text-[var(--color-primary-200)]">Wear Your Heritage</p>
                 <div className="mt-8 flex flex-col gap-3">
@@ -127,7 +127,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 <div className="mt-auto">
                   <div className="surface-card-dark p-6">
                     <p className="eyebrow">Fresh Drop</p>
-                    <p className="mt-3 text-2xl font-bold tracking-tight">Contemporary silhouettes rooted in African identity.</p>
+                    <p className="mt-3 text-2xl font-bold tracking-tight">Nuhafrik Clothing and Accessories Store Kubwa is a modern fashion hub dedicated to celebrating African heritage while embracing global style.</p>
                   </div>
                 </div>
               </motion.div>
@@ -136,7 +136,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 initial={{ x: '100%' }}
                 animate={{ x: view === 'shop' ? 0 : '100%' }}
                 transition={{ duration: 0.3 }}
-                className="absolute inset-0 flex flex-col px-6 py-8"
+                className="absolute inset-0 flex flex-col overflow-y-auto px-6 py-8 no-scrollbar"
               >
                 <button
                   onClick={() => setView('main')}

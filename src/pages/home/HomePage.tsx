@@ -59,7 +59,7 @@ export const HomePage = () => {
 
   return (
     <div className="flex flex-col gap-[var(--space-12)] pb-[var(--space-20)]">
-      <section className="page-shell pb-[var(--space-12)] pt-0">
+      <section className="page-shell pb-[var(--space-12)] pt-[var(--space-4)] md:pt-[var(--space-5)]">
         <div className="space-y-5">
           <div className="overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,248,240,0.98),rgba(255,242,234,0.98))] shadow-[var(--shadow-lg)]">
             <div className="grid items-center gap-8 px-5 py-6 sm:px-8 md:px-10 md:py-8 lg:min-h-[30rem] lg:grid-cols-[0.92fr_1.08fr] lg:px-12">

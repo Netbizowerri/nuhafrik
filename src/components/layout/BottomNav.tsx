@@ -17,8 +17,8 @@ export const BottomNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 md:hidden">
-      <div className="flex items-center justify-around rounded-full border border-[var(--color-border)] bg-[rgba(255,250,242,0.92)] px-2 py-2 shadow-[var(--shadow-lg)] backdrop-blur-xl">
+    <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden">
+      <div className="flex items-center justify-around border-t border-[var(--color-border)] bg-[rgba(255,250,242,0.98)] px-2 py-2 shadow-[0_-8px_24px_rgba(38,5,0,0.08)] backdrop-blur-xl">
         {navItems.map((item) => {
           const isActive = location.pathname === item.route;
           const Icon = item.icon;
