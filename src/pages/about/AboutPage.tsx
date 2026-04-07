@@ -58,12 +58,12 @@ export const AboutPage = () => {
           </div>
           <div className="relative min-h-[24rem]">
             <img
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
+              src="https://i.ibb.co/Q3KCSVLK/Nuhafrik-1.jpg"
               alt="Curated African-inspired fashion styling from Nuhafrik"
               className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
-              width="2070"
-              height="1380"
+              width="700"
+              height="900"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(38,5,0,0.82)] via-transparent to-transparent" />
           </div>
