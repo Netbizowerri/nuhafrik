@@ -5,10 +5,14 @@ import { Bell, Heart, HelpCircle, Info, LayoutDashboard, LogOut, MapPin, Package
 import { auth } from '../../lib/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME } from '../../lib/seo';
 
 export const AccountPage = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  const title = `My Account | ${BRAND_NAME}`;
+  const description = 'Access your Nuhafrik account to manage orders, saved preferences, and support options.';
 
   const menuItems = [
     { label: 'My Orders', icon: Package, route: '/orders' },
@@ -33,18 +37,30 @@ export const AccountPage = () => {
   };
 
   if (loading) {
-    return <div className="empty-state page-shell text-[var(--color-text-secondary)]">Loading account...</div>;
+    return (
+      <div className="empty-state page-shell text-[var(--color-text-secondary)]">
+        <Seo title={title} description={description} path="/account" noindex />
+        Loading account...
+      </div>
+    );
   }
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={title} description={description} path="/account" noindex />
       <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="surface-card-dark p-8 md:p-10">
           <p className="eyebrow">My Account</p>
           <div className="mt-6 flex items-center gap-4">
             <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-[var(--color-primary)] text-2xl font-bold text-[var(--color-text-inverse)]">
               {user?.photoURL ? (
-                <img src={user.photoURL} alt={user.displayName || 'User'} className="h-full w-full object-cover" />
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName ? `${user.displayName} profile photo` : 'Customer profile photo'}
+                  className="h-full w-full object-cover"
+                  width="80"
+                  height="80"
+                />
               ) : (
                 <span>{user?.displayName?.[0] || user?.email?.[0] || 'G'}</span>
               )}

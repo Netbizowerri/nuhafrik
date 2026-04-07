@@ -78,9 +78,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link to="/" onClick={handleClose}>
                 <img
                   src="https://i.ibb.co/SX4954mw/Nuhafrik-3.png"
-                  alt="NUHAFRIK"
+                  alt="Nuhafrik Clothing and Accessories Store logo"
                   className="w-[136px] max-w-none object-contain"
                   referrerPolicy="no-referrer"
+                  width="136"
+                  height="40"
                 />
               </Link>
               <button

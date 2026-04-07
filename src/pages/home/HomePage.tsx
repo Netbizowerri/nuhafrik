@@ -7,6 +7,8 @@ import { db } from '../../lib/firebase';
 import { Product } from '../../types';
 import { ProductCard } from '../../components/product/ProductCard';
 import { cn } from '../../lib/utils';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME, BUSINESS_DETAILS, absoluteUrl } from '../../lib/seo';
 
 const featuredTabs = ['All', 'Featured', 'Latest'] as const;
 
@@ -56,9 +58,42 @@ export const HomePage = () => {
     { label: 'Accessories', to: '/shop?category=accessories' },
     { label: 'Featured', to: '/shop' },
   ];
+  const title = `African Fashion Store in Kubwa Abuja | ${BRAND_NAME}`;
+  const description =
+    'Shop African-inspired clothing and accessories in Kubwa Abuja with nationwide delivery, polished styling, and dependable customer support.';
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ClothingStore',
+      name: BUSINESS_DETAILS.name,
+      description: BUSINESS_DETAILS.description,
+      image: absoluteUrl('/og-default.svg'),
+      url: absoluteUrl('/'),
+      telephone: BUSINESS_DETAILS.phone,
+      email: BUSINESS_DETAILS.email,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: BUSINESS_DETAILS.streetAddress,
+        addressLocality: BUSINESS_DETAILS.addressLocality,
+        addressRegion: BUSINESS_DETAILS.addressRegion,
+        postalCode: BUSINESS_DETAILS.postalCode,
+        addressCountry: BUSINESS_DETAILS.addressCountry,
+      },
+      areaServed: 'NG',
+      openingHours: 'Mo-Sa 09:00-18:00',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: BUSINESS_DETAILS.name,
+      url: absoluteUrl('/'),
+      description,
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-[var(--space-12)] pb-[var(--space-20)]">
+      <Seo title={title} description={description} path="/" structuredData={structuredData} />
       <section className="page-shell pb-[var(--space-12)] pt-[var(--space-4)] md:pt-[var(--space-5)]">
         <div className="space-y-5">
           <div className="overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,248,240,0.98),rgba(255,242,234,0.98))] shadow-[var(--shadow-lg)]">
@@ -104,9 +139,11 @@ export const HomePage = () => {
               >
                 <img
                   src="https://i.ibb.co/twsDX7k9/NUHAFRIK-2-1.png"
-                  alt="Nuhafrik hero model"
+                  alt="Model wearing signature Nuhafrik clothing and accessories"
                   className="relative z-10 max-h-[19rem] w-auto object-contain sm:max-h-[22rem] md:max-h-[25rem] lg:max-h-[28rem]"
                   referrerPolicy="no-referrer"
+                  width="960"
+                  height="1200"
                 />
               </motion.div>
             </div>
@@ -225,7 +262,14 @@ export const HomePage = () => {
               },
             ].map((item) => (
               <Link key={item.title} to={item.route} className="group hero-panel min-h-[22rem]">
-                <img src={item.image} alt={item.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" referrerPolicy="no-referrer" />
+                <img
+                  src={item.image}
+                  alt={`${item.title} collection preview from Nuhafrik`}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  referrerPolicy="no-referrer"
+                  width="700"
+                  height="900"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-[rgba(38,5,0,0.82)] via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <p className="eyebrow">{item.title}</p>

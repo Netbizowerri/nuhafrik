@@ -2,9 +2,33 @@ import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CheckCircle2, Clock, Mail, MapPin, Phone, Send } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME, BUSINESS_DETAILS, absoluteUrl } from '../../lib/seo';
 
 export const ContactPage = () => {
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'success'>('idle');
+  const title = `Contact Nuhafrik Kubwa Abuja | ${BRAND_NAME}`;
+  const description =
+    'Contact Nuhafrik in Kubwa Abuja for product inquiries, sizing help, delivery support, and fast assistance before or after your order.';
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ClothingStore',
+    name: BUSINESS_DETAILS.name,
+    description: BUSINESS_DETAILS.description,
+    url: absoluteUrl('/contact'),
+    image: absoluteUrl('/og-default.svg'),
+    telephone: BUSINESS_DETAILS.phone,
+    email: BUSINESS_DETAILS.email,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: BUSINESS_DETAILS.streetAddress,
+      addressLocality: BUSINESS_DETAILS.addressLocality,
+      addressRegion: BUSINESS_DETAILS.addressRegion,
+      postalCode: BUSINESS_DETAILS.postalCode,
+      addressCountry: BUSINESS_DETAILS.addressCountry,
+    },
+    openingHours: 'Mo-Sa 09:00-18:00',
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,6 +38,7 @@ export const ContactPage = () => {
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={title} description={description} path="/contact" structuredData={structuredData} />
       <section className="hero-panel overflow-hidden">
         <div className="grid gap-8 px-6 py-10 md:px-10 md:py-14 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="space-y-5">

@@ -3,14 +3,19 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
 import { formatCurrency } from '../../lib/utils';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME } from '../../lib/seo';
 
 export const CartPage = () => {
   const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
   const subtotal = getSubtotal();
+  const title = `Your Shopping Bag | ${BRAND_NAME}`;
+  const description = 'Review selected Nuhafrik items, quantities, and totals before continuing to checkout.';
 
   if (items.length === 0) {
     return (
       <div className="page-shell empty-state">
+        <Seo title={title} description={description} path="/cart" noindex />
         <span className="icon-pill h-20 w-20">
           <ShoppingBag size={34} />
         </span>
@@ -26,6 +31,7 @@ export const CartPage = () => {
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={title} description={description} path="/cart" noindex />
       <section className="section-heading">
         <p className="eyebrow">Your Bag</p>
         <h1 className="page-title">Selected pieces ready for checkout.</h1>
@@ -37,7 +43,14 @@ export const CartPage = () => {
           {items.map((item) => (
             <div key={`${item.product_id}-${item.size}-${item.color}`} className="surface-card grid gap-5 p-5 md:grid-cols-[7rem_1fr] md:p-6">
               <div className="overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-surface)]">
-                <img src={item.image_url} alt={item.name} className="aspect-[3/4] h-full w-full object-cover" referrerPolicy="no-referrer" />
+                <img
+                  src={item.image_url}
+                  alt={`${item.name} in your Nuhafrik shopping bag`}
+                  className="aspect-[3/4] h-full w-full object-cover"
+                  referrerPolicy="no-referrer"
+                  width="400"
+                  height="533"
+                />
               </div>
 
               <div className="flex flex-col gap-5">

@@ -53,6 +53,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
               alt={primaryImage.alt || product.name}
               className="h-full w-full object-cover transition-transform duration-500 [transition-timing-function:var(--ease-elegant)] group-hover:scale-105"
               referrerPolicy="no-referrer"
+              width="800"
+              height="1000"
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-[var(--color-primary-50)] text-sm font-medium text-[var(--color-text-muted)]">

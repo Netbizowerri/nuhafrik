@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Clock, MapPin, Package, RefreshCw, ShieldCheck, Truck } from 'lucide-react';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME, absoluteUrl } from '../../lib/seo';
 
 export const ShippingReturnsPage = () => {
   const shippingInfo = [
@@ -38,9 +40,20 @@ export const ShippingReturnsPage = () => {
       desc: 'If you receive a defective or incorrect item, we will replace it or issue a refund.',
     },
   ];
+  const title = `Shipping and Returns | ${BRAND_NAME}`;
+  const description =
+    'Review Nuhafrik shipping timelines, Abuja delivery options, store pickup, and returns policy before placing your fashion order.';
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description,
+    url: absoluteUrl('/shipping-returns'),
+  };
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={title} description={description} path="/shipping-returns" structuredData={structuredData} />
       <section className="hero-panel px-6 py-10 md:px-10 md:py-14">
         <p className="eyebrow">Shipping & Returns</p>
         <h1 className="page-title mt-4">Clear delivery timelines and a straightforward returns policy.</h1>

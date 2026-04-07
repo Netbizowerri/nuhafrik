@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Heart, Rocket, Shield, Sparkles, Users } from 'lucide-react';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME, BUSINESS_DETAILS, absoluteUrl } from '../../lib/seo';
 
 export const AboutPage = () => {
   const missionPoints = [
@@ -21,9 +23,30 @@ export const AboutPage = () => {
       text: 'To inspire confidence and self-expression in every customer we serve.',
     },
   ];
+  const title = `About Nuhafrik | ${BRAND_NAME}`;
+  const description =
+    'Learn how Nuhafrik in Kubwa Abuja blends African heritage, modern style, and quality finishing into a confident fashion experience.';
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'AboutPage',
+      name: title,
+      description,
+      url: absoluteUrl('/about'),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ClothingStore',
+      name: BUSINESS_DETAILS.name,
+      description: BUSINESS_DETAILS.description,
+      url: absoluteUrl('/'),
+      image: absoluteUrl('/og-default.svg'),
+    },
+  ];
 
   return (
     <div className="page-stack">
+      <Seo title={title} description={description} path="/about" structuredData={structuredData} />
       <section className="page-shell">
         <div className="hero-panel grid gap-8 overflow-hidden lg:grid-cols-[1fr_0.9fr]">
           <div className="flex flex-col justify-center gap-5 px-6 py-10 md:px-10 md:py-14">
@@ -36,9 +59,11 @@ export const AboutPage = () => {
           <div className="relative min-h-[24rem]">
             <img
               src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
-              alt="Nuhafrik fashion"
+              alt="Curated African-inspired fashion styling from Nuhafrik"
               className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
+              width="2070"
+              height="1380"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(38,5,0,0.82)] via-transparent to-transparent" />
           </div>

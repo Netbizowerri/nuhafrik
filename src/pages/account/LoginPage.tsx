@@ -5,6 +5,8 @@ import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { ArrowLeft, ArrowRight, Lock, LogIn, Mail, User as UserIcon } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { Button } from '../../components/ui/Button';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME } from '../../lib/seo';
 
 enum OperationType {
   GET = 'get',
@@ -61,6 +63,8 @@ export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const title = `Sign In or Register | ${BRAND_NAME}`;
+  const description = 'Sign in or create a Nuhafrik account to track orders, save preferences, and speed up checkout.';
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -160,6 +164,7 @@ export const LoginPage = () => {
 
   return (
     <div className="page-shell page-stack min-h-[85vh] justify-center">
+      <Seo title={title} description={description} path="/login" noindex />
       <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-text-secondary)]">
         <ArrowLeft size={16} />
         Back to storefront
@@ -254,7 +259,7 @@ export const LoginPage = () => {
           </div>
 
           <Button onClick={handleGoogleLogin} disabled={loading} variant="outline" size="lg" className="w-full">
-            <img src="https://www.google.com/favicon.ico" alt="Google" className="h-5 w-5" />
+            <img src="https://www.google.com/favicon.ico" alt="Google sign-in icon" className="h-5 w-5" width="20" height="20" />
             Google
           </Button>
 

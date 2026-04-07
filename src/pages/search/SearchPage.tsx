@@ -5,6 +5,8 @@ import { collection, getDocs, limit, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { Product } from '../../types';
 import { ProductCard } from '../../components/product/ProductCard';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME } from '../../lib/seo';
 
 export const SearchPage = () => {
   const navigate = useNavigate();
@@ -12,6 +14,9 @@ export const SearchPage = () => {
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const title = `Search Nuhafrik Products | ${BRAND_NAME}`;
+  const description =
+    'Search Nuhafrik clothing and accessories by style, category, or keyword to quickly find the pieces you want.';
 
   useEffect(() => {
     const saved = localStorage.getItem('recent-searches');
@@ -42,6 +47,7 @@ export const SearchPage = () => {
 
   return (
     <div className="page-shell page-stack min-h-screen">
+      <Seo title={title} description={description} path="/search" noindex />
       <section className="surface-card sticky top-[6.5rem] z-40 p-4 md:p-5">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate(-1)} className="btn-base btn-outline btn-sm !h-11 !w-11 !p-0">

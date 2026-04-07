@@ -5,12 +5,16 @@ import { CheckCircle2, ChevronLeft, Clock, MapPin, Package, Phone, Truck } from 
 import { db } from '../../lib/firebase';
 import { Order } from '../../types';
 import { cn, formatCurrency } from '../../lib/utils';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME } from '../../lib/seo';
 
 export const OrderTrackingPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const title = `Track Your Order | ${BRAND_NAME}`;
+  const description = 'Track the current delivery stage of your Nuhafrik order and view key order details.';
 
   useEffect(() => {
     if (!orderId) return;
@@ -44,6 +48,7 @@ export const OrderTrackingPage = () => {
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={title} description={description} path={orderId ? `/orders/${orderId}` : '/orders'} noindex />
       <section className="flex items-center gap-4">
         <button onClick={() => navigate('/orders')} className="btn-base btn-outline btn-sm">
           <ChevronLeft size={16} />

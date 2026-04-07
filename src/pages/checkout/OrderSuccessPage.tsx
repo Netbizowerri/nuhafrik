@@ -4,12 +4,16 @@ import { CheckCircle2, Package } from 'lucide-react';
 import { motion } from 'motion/react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME } from '../../lib/seo';
 
 export const OrderSuccessPage = () => {
   const { orderId } = useParams();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const title = `Order Confirmation | ${BRAND_NAME}`;
+  const description = 'Your Nuhafrik order is confirmed. Review your order reference and next delivery steps.';
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -34,12 +38,18 @@ export const OrderSuccessPage = () => {
   }, [orderId]);
 
   if (loading) {
-    return <div className="empty-state page-shell text-[var(--color-text-secondary)]">Loading your confirmation...</div>;
+    return (
+      <div className="empty-state page-shell text-[var(--color-text-secondary)]">
+        <Seo title={title} description={description} path={orderId ? `/checkout/success/${orderId}` : '/checkout/success'} noindex />
+        Loading your confirmation...
+      </div>
+    );
   }
 
   if (error) {
     return (
       <div className="page-shell empty-state">
+        <Seo title={title} description={description} path={orderId ? `/checkout/success/${orderId}` : '/checkout/success'} noindex />
         <h1 className="section-title">Something went wrong.</h1>
         <p className="section-copy text-center">{error}</p>
         <Link to="/shop" className="text-sm font-semibold text-[var(--color-primary)] underline">
@@ -51,6 +61,7 @@ export const OrderSuccessPage = () => {
 
   return (
     <div className="page-shell page-stack min-h-[80vh] items-center justify-center text-center">
+      <Seo title={title} description={description} path={orderId ? `/checkout/success/${orderId}` : '/checkout/success'} noindex />
       <motion.div initial={{ scale: 0.75, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="surface-card flex max-w-2xl flex-col items-center p-10 md:p-14">
         <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-[var(--color-primary-50)] text-[var(--color-primary)]">
           <CheckCircle2 size={52} />

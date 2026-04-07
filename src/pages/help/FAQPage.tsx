@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ChevronDown, CreditCard, HelpCircle, ShoppingBag, Truck } from 'lucide-react';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME, absoluteUrl } from '../../lib/seo';
 
 interface FAQItemProps {
   question: string;
@@ -76,9 +78,28 @@ export const FAQPage = () => {
       ],
     },
   ];
+  const title = `Fashion Store FAQs | ${BRAND_NAME}`;
+  const description =
+    'Get answers about ordering, payment, delivery, and account support at Nuhafrik before you shop or place your next order.';
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqCategories.flatMap((category) =>
+      category.items.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      }))
+    ),
+    url: absoluteUrl('/faq'),
+  };
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={title} description={description} path="/faq" structuredData={structuredData} />
       <section className="hero-panel px-6 py-10 text-center md:px-10 md:py-14">
         <span className="icon-pill mx-auto h-20 w-20">
           <HelpCircle size={34} />

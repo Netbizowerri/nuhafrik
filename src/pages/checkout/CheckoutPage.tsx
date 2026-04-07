@@ -9,6 +9,8 @@ import { auth, db } from '../../lib/firebase';
 import { useCartStore } from '../../store/useCartStore';
 import { Button } from '../../components/ui/Button';
 import { cn, formatCurrency } from '../../lib/utils';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME } from '../../lib/seo';
 
 const checkoutSchema = z.object({
   fullName: z.string().min(3, 'Full name is required'),
@@ -26,6 +28,8 @@ export const CheckoutPage = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('paystack');
+  const title = `Secure Checkout | ${BRAND_NAME}`;
+  const description = 'Complete your Nuhafrik order with secure checkout, delivery options, and payment methods.';
 
   const {
     register,
@@ -118,6 +122,7 @@ export const CheckoutPage = () => {
   if (items.length === 0) {
     return (
       <div className="page-shell empty-state">
+        <Seo title={title} description={description} path="/checkout" noindex />
         <span className="icon-pill h-20 w-20">
           <ShoppingBag size={34} />
         </span>
@@ -132,6 +137,7 @@ export const CheckoutPage = () => {
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={title} description={description} path="/checkout" noindex />
       <section className="flex flex-col gap-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -294,7 +300,14 @@ export const CheckoutPage = () => {
             {items.map((item) => (
               <div key={`${item.product_id}-${item.size}-${item.color}`} className="flex gap-4">
                 <div className="overflow-hidden rounded-[var(--radius-lg)] bg-white/5">
-                  <img src={item.image_url} alt={item.name} className="h-20 w-16 object-cover" referrerPolicy="no-referrer" />
+                  <img
+                    src={item.image_url}
+                    alt={`${item.name} in your Nuhafrik checkout summary`}
+                    className="h-20 w-16 object-cover"
+                    referrerPolicy="no-referrer"
+                    width="160"
+                    height="200"
+                  />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold">{item.name}</p>

@@ -5,6 +5,8 @@ import { useSearchParams } from 'react-router-dom';
 import { db } from '../../lib/firebase';
 import { Product } from '../../types';
 import { ProductCard } from '../../components/product/ProductCard';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME, absoluteUrl } from '../../lib/seo';
 
 export const ShopPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -47,9 +49,26 @@ export const ShopPage = () => {
   }, [products, searchTerm]);
 
   const title = categoryFilter ? categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1) : 'All Collections';
+  const pageTitle = `${title === 'All Collections' ? 'Shop Clothing and Accessories' : `${title} Collection`} | ${BRAND_NAME}`;
+  const description = categoryFilter
+    ? `Browse ${title.toLowerCase()} at Nuhafrik with African-inspired styling, dependable quality, and nationwide delivery across Nigeria.`
+    : 'Browse Nuhafrik clothing and accessories with curated African-inspired style, reliable delivery, and quality finishing for everyday wear.';
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    url: absoluteUrl(categoryFilter ? `/shop?category=${categoryFilter}` : '/shop'),
+  };
 
   return (
     <div className="page-shell page-stack">
+      <Seo
+        title={pageTitle}
+        description={description}
+        path={categoryFilter ? `/shop?category=${categoryFilter}` : '/shop'}
+        structuredData={structuredData}
+      />
       <section className="hero-panel overflow-hidden">
         <div className="grid gap-8 px-6 py-10 md:px-10 md:py-12 lg:grid-cols-[1fr_0.7fr]">
           <div className="space-y-5">

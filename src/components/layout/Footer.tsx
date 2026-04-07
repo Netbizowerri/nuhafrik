@@ -12,9 +12,11 @@ export const Footer = () => {
           <div className="space-y-6">
             <img
               src="https://i.ibb.co/SX4954mw/Nuhafrik-3.png"
-              alt="NUHAFRIK"
+              alt="Nuhafrik Clothing and Accessories Store logo"
               className="w-[136px] max-w-none object-contain"
               referrerPolicy="no-referrer"
+              width="136"
+              height="40"
             />
             <p className="max-w-md text-sm leading-7 text-[rgba(255,250,242,0.72)]">
               Nuhafrik crafts contemporary African fashion with confident silhouettes, tactile detail, and an editorial approach to everyday dressing.

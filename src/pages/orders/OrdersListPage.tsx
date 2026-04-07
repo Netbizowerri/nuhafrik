@@ -5,10 +5,14 @@ import { Package } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { Order } from '../../types';
 import { cn, formatCurrency, formatDate } from '../../lib/utils';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME } from '../../lib/seo';
 
 export const OrdersListPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const title = `My Orders | ${BRAND_NAME}`;
+  const description = 'Review your Nuhafrik order history and current purchase activity in one place.';
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -34,12 +38,18 @@ export const OrdersListPage = () => {
   }, []);
 
   if (loading) {
-    return <div className="empty-state page-shell text-[var(--color-text-secondary)]">Loading orders...</div>;
+    return (
+      <div className="empty-state page-shell text-[var(--color-text-secondary)]">
+        <Seo title={title} description={description} path="/orders" noindex />
+        Loading orders...
+      </div>
+    );
   }
 
   if (!auth.currentUser) {
     return (
       <div className="page-shell empty-state">
+        <Seo title={title} description={description} path="/orders" noindex />
         <span className="icon-pill h-20 w-20">
           <Package size={34} />
         </span>
@@ -55,6 +65,7 @@ export const OrdersListPage = () => {
   if (orders.length === 0) {
     return (
       <div className="page-shell empty-state">
+        <Seo title={title} description={description} path="/orders" noindex />
         <span className="icon-pill h-20 w-20">
           <Package size={34} />
         </span>
@@ -78,6 +89,7 @@ export const OrdersListPage = () => {
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={title} description={description} path="/orders" noindex />
       <section className="section-heading">
         <p className="eyebrow">My Orders</p>
         <h1 className="page-title">Track every Nuhafrik purchase in one place.</h1>
@@ -102,9 +114,11 @@ export const OrdersListPage = () => {
                   <img
                     key={index}
                     src={item.image_url}
-                    alt=""
+                    alt={`${item.name} ordered from Nuhafrik`}
                     className="inline-block h-14 w-14 rounded-full border-2 border-[var(--color-surface)] object-cover"
                     referrerPolicy="no-referrer"
+                    width="56"
+                    height="56"
                   />
                 ))}
               </div>

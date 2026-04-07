@@ -9,6 +9,8 @@ import { Button } from '../../components/ui/Button';
 import { cn, formatCurrency } from '../../lib/utils';
 import { useCartStore } from '../../store/useCartStore';
 import { ProductCard } from '../../components/product/ProductCard';
+import { Seo } from '../../components/seo/Seo';
+import { BRAND_NAME, absoluteUrl } from '../../lib/seo';
 
 export const ProductDetailPage = () => {
   const { productId } = useParams();
@@ -74,11 +76,30 @@ export const ProductDetailPage = () => {
   }, [product]);
 
   if (loading) {
-    return <div className="empty-state page-shell text-[var(--color-text-secondary)]">Loading product details...</div>;
+    return (
+      <div className="empty-state page-shell text-[var(--color-text-secondary)]">
+        <Seo
+          title={`Product Details | ${BRAND_NAME}`}
+          description="Browse product details, pricing, sizes, and delivery information for this Nuhafrik item."
+          path={productId ? `/product/${productId}` : '/product'}
+        />
+        Loading product details...
+      </div>
+    );
   }
 
   if (!product) {
-    return <div className="empty-state page-shell text-[var(--color-text-secondary)]">Product not found.</div>;
+    return (
+      <div className="empty-state page-shell text-[var(--color-text-secondary)]">
+        <Seo
+          title={`Product Not Found | ${BRAND_NAME}`}
+          description="The requested Nuhafrik product could not be found."
+          path={productId ? `/product/${productId}` : '/product'}
+          noindex
+        />
+        Product not found.
+      </div>
+    );
   }
 
   const handleAddToCart = () => {
@@ -93,9 +114,35 @@ export const ProductDetailPage = () => {
       subtotal: product.pricing.selling_price,
     });
   };
+  const productPath = `/product/${product.id}`;
+  const categoryLabel = product.category_id.replace(/[-_]/g, ' ');
+  const pageTitle = `${product.name} | ${BRAND_NAME}`;
+  const description = `${product.name} at Nuhafrik with ${categoryLabel} styling, quality finishing, and delivery across Nigeria. Shop sizes, colors, and current pricing online.`;
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.short_description || product.description,
+    image: product.images.map((image) => image.url),
+    sku: product.sku || product.id,
+    category: categoryLabel,
+    brand: {
+      '@type': 'Brand',
+      name: 'Nuhafrik',
+    },
+    offers: {
+      '@type': 'Offer',
+      url: absoluteUrl(productPath),
+      priceCurrency: 'NGN',
+      price: product.pricing.selling_price,
+      availability: product.inventory > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+  };
 
   return (
     <div className="page-shell page-stack">
+      <Seo title={pageTitle} description={description} path={productPath} type="product" structuredData={structuredData} />
       <section className="flex flex-wrap items-center justify-between gap-4 pt-4">
         <button onClick={() => navigate(-1)} className="btn-base btn-outline btn-sm">
           <ChevronLeft size={16} />
@@ -119,9 +166,11 @@ export const ProductDetailPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               src={product.images[activeImage]?.url}
-              alt={product.name}
+              alt={product.images[activeImage]?.alt || `${product.name} product image ${activeImage + 1}`}
               className="h-full w-full object-cover"
               referrerPolicy="no-referrer"
+              width="800"
+              height="1000"
             />
           </div>
 
@@ -137,7 +186,14 @@ export const ProductDetailPage = () => {
                     : 'border-[var(--color-border)] opacity-75 hover:opacity-100'
                 )}
               >
-                <img src={img.url} alt="" className="aspect-square h-full w-full object-cover" referrerPolicy="no-referrer" />
+                <img
+                  src={img.url}
+                  alt={img.alt || `${product.name} gallery image ${index + 1}`}
+                  className="aspect-square h-full w-full object-cover"
+                  referrerPolicy="no-referrer"
+                  width="400"
+                  height="400"
+                />
               </button>
             ))}
           </div>
