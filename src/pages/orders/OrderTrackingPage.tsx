@@ -7,6 +7,7 @@ import { Order } from '../../types';
 import { cn, formatCurrency } from '../../lib/utils';
 import { Seo } from '../../components/seo/Seo';
 import { BRAND_NAME } from '../../lib/seo';
+import { getStoredOrderConfirmation } from '../../lib/orderConfirmation';
 
 export const OrderTrackingPage = () => {
   const { orderId } = useParams();
@@ -18,12 +19,26 @@ export const OrderTrackingPage = () => {
 
   useEffect(() => {
     if (!orderId) return;
-    const unsubscribe = onSnapshot(doc(db, 'orders', orderId), (snap) => {
-      if (snap.exists()) {
-        setOrder({ id: snap.id, ...snap.data() } as Order);
-      }
+    const storedOrder = getStoredOrderConfirmation(orderId);
+
+    if (storedOrder) {
+      setOrder(storedOrder as Order);
       setLoading(false);
-    });
+    }
+
+    const unsubscribe = onSnapshot(
+      doc(db, 'orders', orderId),
+      (snap) => {
+        if (snap.exists()) {
+          setOrder({ id: snap.id, ...snap.data() } as Order);
+        }
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error loading order tracking:', error);
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, [orderId]);

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Building2, ChevronLeft, CreditCard, MapPin, ShoppingBag, Truck, User } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { FieldErrors, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { auth, db } from '../../lib/firebase';
 import { useCartStore } from '../../store/useCartStore';
@@ -11,14 +11,25 @@ import { Button } from '../../components/ui/Button';
 import { cn, formatCurrency } from '../../lib/utils';
 import { Seo } from '../../components/seo/Seo';
 import { BRAND_NAME } from '../../lib/seo';
+import { saveOrderConfirmation } from '../../lib/orderConfirmation';
 
-const checkoutSchema = z.object({
-  fullName: z.string().min(3, 'Full name is required'),
-  phone: z.string().min(10, 'Valid phone number is required'),
-  email: z.string().email('Valid email is required').optional().or(z.literal('')),
-  deliveryMethod: z.enum(['pickup', 'abuja_local', 'lagos', 'other_states']),
-  address: z.string().min(10, 'Full address is required').optional(),
-});
+const checkoutSchema = z
+  .object({
+    fullName: z.string().min(3, 'Full name is required'),
+    phone: z.string().min(10, 'Valid phone number is required'),
+    email: z.string().email('Valid email is required').optional().or(z.literal('')),
+    deliveryMethod: z.enum(['pickup', 'abuja_local', 'lagos', 'other_states']),
+    address: z.string().optional().or(z.literal('')),
+  })
+  .superRefine((data, ctx) => {
+    if (data.deliveryMethod !== 'pickup' && (!data.address || data.address.trim().length < 10)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['address'],
+        message: 'Full address is required',
+      });
+    }
+  });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
@@ -28,6 +39,7 @@ export const CheckoutPage = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('paystack');
+  const [submitError, setSubmitError] = useState('');
   const title = `Secure Checkout | ${BRAND_NAME}`;
   const description = 'Complete your Nuhafrik order with secure checkout, delivery options, and payment methods.';
 
@@ -59,6 +71,8 @@ export const CheckoutPage = () => {
   const total = subtotal + deliveryFee;
 
   const onSubmit = async (data: CheckoutFormData) => {
+    setSubmitError('');
+
     if (step === 1) {
       setStep(2);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -68,10 +82,12 @@ export const CheckoutPage = () => {
     setIsSubmitting(true);
     const path = 'orders';
     try {
+      const orderNumber = `NUH-${Date.now().toString().slice(-8)}`;
+      const customerUid = auth.currentUser?.uid || `guest-${Date.now()}`;
       const orderData = {
-        order_number: `NUH-${Date.now().toString().slice(-8)}`,
+        order_number: orderNumber,
         customer: {
-          uid: auth.currentUser?.uid || 'anonymous',
+          uid: customerUid,
           name: data.fullName,
           phone: data.phone,
           email: data.email || null,
@@ -90,11 +106,16 @@ export const CheckoutPage = () => {
           estimated_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         },
         payment_method: paymentMethod,
-        status: 'confirmed',
+        status: 'confirmed' as const,
         created_at: serverTimestamp(),
       };
 
       const docRef = await addDoc(collection(db, path), orderData);
+      saveOrderConfirmation({
+        id: docRef.id,
+        ...orderData,
+        created_at: new Date().toISOString(),
+      });
       clearCart();
       navigate(`/checkout/success/${docRef.id}`);
     } catch (error: any) {
@@ -111,11 +132,25 @@ export const CheckoutPage = () => {
           },
         };
         console.error('Firestore Error: ', JSON.stringify(errInfo));
-        throw new Error(JSON.stringify(errInfo));
+        setSubmitError('Order placement is currently blocked by Firestore permissions. Deploy the updated rules and try again.');
+        return;
       }
       console.error('Error creating order:', error);
+      setSubmitError('We could not place your order right now. Please try again in a moment.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const onInvalid = (formErrors: FieldErrors<CheckoutFormData>) => {
+    const hasDeliveryDetailsError = Boolean(
+      formErrors.fullName || formErrors.phone || formErrors.email || formErrors.deliveryMethod || formErrors.address
+    );
+
+    if (step === 2 && hasDeliveryDetailsError) {
+      setStep(1);
+      setSubmitError('Please review your delivery details before placing the order.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -161,7 +196,7 @@ export const CheckoutPage = () => {
       </section>
 
       <section className="grid gap-8 lg:grid-cols-[1fr_25rem]">
-        <form id="checkout-form" onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form id="checkout-form" onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-8">
           <div className={cn('space-y-8', step !== 1 && 'hidden')}>
             <div className="surface-card p-6 md:p-8">
               <div className="mb-6 flex items-center gap-3">
@@ -339,6 +374,12 @@ export const CheckoutPage = () => {
           <Button form="checkout-form" type="submit" isLoading={isSubmitting} size="lg" className="w-full">
             {step === 1 ? 'Continue to Payment' : 'Place Order'}
           </Button>
+
+          {submitError ? (
+            <div className="rounded-[var(--radius-lg)] border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+              {submitError}
+            </div>
+          ) : null}
 
           <p className="text-xs uppercase tracking-[0.08em] text-[rgba(255,250,242,0.45)]">
             By placing your order, you agree to our terms and conditions.

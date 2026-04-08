@@ -12,9 +12,64 @@ service cloud.firestore {
          (request.auth.token.email == "netbiz0925@gmail.com" && request.auth.token.email_verified == true));
     }
 
+    function isOrderOwner(orderData) {
+      return isAuthenticated() && orderData.customer.uid == request.auth.uid;
+    }
+
+    function isValidOrderStatus(status) {
+      return status == 'confirmed' ||
+        status == 'processing' ||
+        status == 'shipped' ||
+        status == 'out_for_delivery' ||
+        status == 'delivered' ||
+        status == 'cancelled';
+    }
+
+    function isValidOrderCreate() {
+      let data = request.resource.data;
+
+      return data.keys().hasOnly([
+          'order_number',
+          'customer',
+          'items',
+          'pricing',
+          'delivery',
+          'payment_method',
+          'status',
+          'created_at'
+        ]) &&
+        data.order_number is string &&
+        data.customer is map &&
+        data.customer.uid is string &&
+        data.customer.name is string &&
+        data.customer.phone is string &&
+        (!('email' in data.customer) || data.customer.email == null || data.customer.email is string) &&
+        data.items is list &&
+        data.items.size() > 0 &&
+        data.pricing is map &&
+        data.pricing.subtotal is number &&
+        data.pricing.delivery_fee is number &&
+        data.pricing.discount is number &&
+        data.pricing.total is number &&
+        data.pricing.currency is string &&
+        data.delivery is map &&
+        data.delivery.method is string &&
+        data.delivery.estimated_date is timestamp &&
+        (!('address' in data.delivery) || data.delivery.address == null || data.delivery.address is string) &&
+        data.payment_method is string &&
+        isValidOrderStatus(data.status) &&
+        data.created_at is timestamp;
+    }
+
     match /products/{productId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow create: if isValidOrderCreate();
+      allow read: if isAdmin() || isOrderOwner(resource.data);
+      allow update, delete: if isAdmin();
     }
 
     match /users/{userId} {

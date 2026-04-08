@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp, getDocs, query, limit, orderBy } from 'firebase/firestore';
+import { Link } from 'react-router-dom';
 import { db } from '../../lib/firebase';
 import { Button } from '../../components/ui/Button';
 import { generatePlaceholderProducts } from '../../lib/gemini';
@@ -231,7 +232,7 @@ export const AdminDashboard = () => {
         <div className="lg:col-span-2 flex flex-col rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
             <h3 className="text-lg font-bold">Recent Orders</h3>
-            <button className="text-sm font-bold text-primary hover:underline">View All</button>
+            <Link to="/admin/orders" className="text-sm font-bold text-primary hover:underline">View All</Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -285,7 +286,7 @@ export const AdminDashboard = () => {
         <div className="flex flex-col rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
             <h3 className="text-lg font-bold">Top Products</h3>
-            <button className="text-sm font-bold text-primary hover:underline">View All</button>
+            <Link to="/admin/products" className="text-sm font-bold text-primary hover:underline">View All</Link>
           </div>
           <div className="flex flex-col divide-y divide-gray-100">
             {topProducts.length > 0 ? topProducts.map((product) => (

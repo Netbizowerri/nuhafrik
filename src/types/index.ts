@@ -59,7 +59,7 @@ export interface Order {
     uid: string;
     name: string;
     phone: string;
-    email?: string;
+    email?: string | null;
   };
   items: CartItem[];
   pricing: {
@@ -71,9 +71,10 @@ export interface Order {
   };
   delivery: {
     method: string;
-    address?: string;
+    address?: string | null;
     estimated_date: any;
   };
+  payment_method: string;
   status: 'confirmed' | 'processing' | 'shipped' | 'out_for_delivery' | 'delivered' | 'cancelled';
   created_at: any;
 }

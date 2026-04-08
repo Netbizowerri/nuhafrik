@@ -14,6 +14,7 @@ import { LoginPage } from './pages/account/LoginPage';
 import { SearchPage } from './pages/search/SearchPage';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminProductsPage } from './pages/admin/AdminProductsPage';
+import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 import { AboutPage } from './pages/about/AboutPage';
 import { ContactPage } from './pages/contact/ContactPage';
 import { FAQPage } from './pages/help/FAQPage';
@@ -25,6 +26,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 
 const ProtectedAdminDashboard = withAdminAuth(AdminDashboard);
 const ProtectedAdminProductsPage = withAdminAuth(AdminProductsPage);
+const ProtectedAdminOrdersPage = withAdminAuth(AdminOrdersPage);
 
 export default function App() {
   return (
@@ -36,6 +38,7 @@ export default function App() {
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<ProtectedAdminDashboard />} />
               <Route path="/admin/products" element={<ProtectedAdminProductsPage />} />
+              <Route path="/admin/orders" element={<ProtectedAdminOrdersPage />} />
             </Route>
 
             <Route element={<AppShell />}>
