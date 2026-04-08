@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query } from 'firebase/firestore';
 import { Filter, Search, SlidersHorizontal } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { db } from '../../lib/firebase';
@@ -14,19 +14,22 @@ export const ShopPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchParams] = useSearchParams();
   const categoryFilter = searchParams.get('category');
+  const normalizedCategoryFilter = categoryFilter?.trim().toLowerCase() || null;
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        let q = query(collection(db, 'products'));
-
-        if (categoryFilter) {
-          q = query(q, where('category_id', '==', categoryFilter));
-        }
-
+        const q = query(collection(db, 'products'));
         const snap = await getDocs(q);
-        setProducts(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product)));
+        const allProducts = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product));
+        const categoryMatchedProducts = normalizedCategoryFilter
+          ? allProducts.filter(
+              (product) => product.category_id?.trim().toLowerCase() === normalizedCategoryFilter
+            )
+          : allProducts;
+
+        setProducts(categoryMatchedProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -35,7 +38,7 @@ export const ShopPage = () => {
     };
 
     fetchProducts();
-  }, [categoryFilter]);
+  }, [normalizedCategoryFilter]);
 
   const visibleProducts = useMemo(() => {
     if (!searchTerm.trim()) return products;
@@ -48,9 +51,11 @@ export const ShopPage = () => {
     );
   }, [products, searchTerm]);
 
-  const title = categoryFilter ? categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1) : 'All Collections';
+  const title = normalizedCategoryFilter
+    ? normalizedCategoryFilter.charAt(0).toUpperCase() + normalizedCategoryFilter.slice(1)
+    : 'All Collections';
   const pageTitle = `${title === 'All Collections' ? 'Shop Clothing and Accessories' : `${title} Collection`} | ${BRAND_NAME}`;
-  const description = categoryFilter
+  const description = normalizedCategoryFilter
     ? `Browse ${title.toLowerCase()} at Nuhafrik with African-inspired styling, dependable quality, and nationwide delivery across Nigeria.`
     : 'Browse Nuhafrik clothing and accessories with curated African-inspired style, reliable delivery, and quality finishing for everyday wear.';
   const structuredData = {
@@ -58,7 +63,7 @@ export const ShopPage = () => {
     '@type': 'CollectionPage',
     name: title,
     description,
-    url: absoluteUrl(categoryFilter ? `/shop?category=${categoryFilter}` : '/shop'),
+    url: absoluteUrl(normalizedCategoryFilter ? `/shop?category=${normalizedCategoryFilter}` : '/shop'),
   };
 
   return (
@@ -66,7 +71,7 @@ export const ShopPage = () => {
       <Seo
         title={pageTitle}
         description={description}
-        path={categoryFilter ? `/shop?category=${categoryFilter}` : '/shop'}
+        path={normalizedCategoryFilter ? `/shop?category=${normalizedCategoryFilter}` : '/shop'}
         structuredData={structuredData}
       />
       <section className="hero-panel overflow-hidden">
@@ -121,7 +126,7 @@ export const ShopPage = () => {
 
         <div className="flex items-center justify-between text-sm text-[var(--color-text-secondary)]">
           <span>{visibleProducts.length} pieces available</span>
-          {categoryFilter ? <span className="status-pill status-pill-soft">Category: {categoryFilter}</span> : null}
+          {normalizedCategoryFilter ? <span className="status-pill status-pill-soft">Category: {title}</span> : null}
         </div>
 
         <div className="grid grid-cols-2 gap-4 md:gap-5 xl:grid-cols-4">
