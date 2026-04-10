@@ -36,9 +36,9 @@ export const HomePage = () => {
           return getTime(b.created_at) - getTime(a.created_at);
         });
 
-        const featuredProducts = sortedProducts.filter((p) => p.metadata?.is_featured).slice(0, 4);
+        const featuredProducts = sortedProducts.filter((p) => p.metadata?.is_featured).slice(0, 8);
         setNewArrivals(sortedProducts.slice(0, 8));
-        setFeatured(featuredProducts.length > 0 ? featuredProducts : sortedProducts.slice(0, 4));
+        setFeatured(featuredProducts.length > 0 ? featuredProducts : sortedProducts.slice(0, 8));
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -50,8 +50,8 @@ export const HomePage = () => {
   }, []);
 
   const heroProduct = featured[0] || newArrivals[0];
-  const visibleFeatured =
-    activeTab === 'Latest' ? newArrivals.slice(0, 4) : activeTab === 'Featured' ? featured : (featured.length ? featured : newArrivals).slice(0, 4);
+const visibleFeatured =
+  activeTab === 'Latest' ? newArrivals.slice(0, 8) : activeTab === 'Featured' ? featured : (featured.length ? featured : newArrivals).slice(0, 8);
   const heroChips = [
     { label: 'New Arrivals', to: '/shop?filter=new' },
     { label: 'Clothing', to: '/shop?category=clothing' },
