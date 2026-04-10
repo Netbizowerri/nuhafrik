@@ -8,7 +8,9 @@
     "build": "node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "clean": "node -e \"try{require('fs').rmSync('dist',{recursive:true,force:true})}catch(e){process.exit(0)}\"",
-    "lint": "node ./node_modules/typescript/bin/tsc --noEmit"
+    "lint": "node ./node_modules/typescript/bin/tsc --noEmit",
+    "transform:prd": "node ./scripts/transform-prd-to-ecommerce-production.mjs",
+    "transform:prd:audit": "node ./scripts/transform-prd-to-ecommerce-production.mjs --audit"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",

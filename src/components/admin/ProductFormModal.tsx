@@ -31,10 +31,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       selling_price: 0,
       is_on_sale: false,
     },
-    variants: {
-      sizes: ['S', 'M', 'L', 'XL'],
-      colors: [],
-    },
+variants: {
+       sizes: ['S', 'M', 'L', 'XL', '38', '39', '40', '41', '42'],
+       colors: [],
+     },
     metadata: {
       is_featured: false,
       is_new_arrival: true,
@@ -334,7 +334,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               <div className="space-y-4">
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Available Sizes</label>
                 <div className="flex flex-wrap gap-2">
-                  {['XS', 'S', 'M', 'L', 'XL', 'XXL', '48', '50', 'Free Size'].map((size) => (
+                  {['XS', 'S', 'M', 'L', 'XL', 'XXL', '38', '39', '40', '41', '42', '48', '50', 'Free Size'].map((size) => (
                     <button
                       key={size}
                       type="button"

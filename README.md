@@ -33,3 +33,16 @@ Important notes:
 - Firebase config is read from [`firebase-applet-config.json`](./firebase-applet-config.json), not from `.env.local`.
 - If you use the Gemini-powered admin generator, set `GEMINI_API_KEY` in the Vercel project Environment Variables before deploying.
 - Add your Vercel domain(s) to Firebase Authentication Authorized Domains if you need login to work in production.
+
+## Action Phrase Workflow
+
+This repository now includes a reusable production transformation workflow:
+
+- Action phrase: `TRANSFORM PRD TO E-COMMERCE PRODUCTION`
+- Blueprint: [`docs/TRANSFORM_PRD_TO_ECOMMERCE_PRODUCTION.md`](./docs/TRANSFORM_PRD_TO_ECOMMERCE_PRODUCTION.md)
+- Project memory snapshot: [`docs/NUHAFRIK_PRODUCTION_MEMORY_SNAPSHOT.md`](./docs/NUHAFRIK_PRODUCTION_MEMORY_SNAPSHOT.md)
+
+Commands:
+
+1. `npm run transform:prd` to print the execution workflow.
+2. `npm run transform:prd:audit` to validate baseline production requirements in the current codebase.
