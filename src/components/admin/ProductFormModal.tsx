@@ -24,7 +24,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     name: '',
     sku: '',
     description: '',
-    category_id: 'Clothing',
+    category_id: 'clothing',
     subcategory_id: '',
     pricing: {
       original_price: 0,
@@ -52,14 +52,18 @@ variants: {
 
   useEffect(() => {
     if (product) {
-      setFormData(product);
+      setFormData({
+        ...product,
+        category_id: product.category_id?.trim().toLowerCase() || 'clothing',
+        subcategory_id: product.subcategory_id?.trim().toLowerCase() || '',
+      });
       setTagsInput(product.tags?.join(', ') || '');
     } else {
       setFormData({
         name: '',
         sku: '',
         description: '',
-        category_id: 'Clothing',
+        category_id: 'clothing',
         subcategory_id: '',
         pricing: {
           original_price: 0,
@@ -223,8 +227,8 @@ variants: {
               />
             </div>
 
-            {/* Pricing & Category */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+             {/* Pricing & Category */}
+             <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Category</label>
                 <select 
@@ -232,12 +236,39 @@ variants: {
                   onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
                 >
-                  <option value="Clothing">Clothing</option>
-                  <option value="Accessories">Accessories</option>
-                  <option value="Footwear">Footwear</option>
+                  <option value="clothing">Clothing</option>
+                  <option value="accessories">Accessories</option>
+                  <option value="shoes">Footwear</option>
                 </select>
               </div>
-              <div className="space-y-2">
+               <div className="space-y-2">
+                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Subcategory</label>
+                 <select 
+                   value={formData.subcategory_id}
+                   onChange={(e) => setFormData({ ...formData, subcategory_id: e.target.value })}
+                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:border-primary focus:outline-none"
+                 >
+                   <option value="">None</option>
+                   {formData.category_id === 'accessories' && [
+                     <option key="bags" value="bags">Bags</option>,
+                     <option key="purse" value="purse">Purse</option>,
+                     <option key="headwear" value="headwear">Headwear</option>,
+                     <option key="belts" value="belts">Belts</option>,
+                     <option key="sunglasses" value="sunglasses">Sunglasses</option>,
+                     <option key="jewelry" value="jewelry">Jewelry</option>,
+                   ]}
+                   {formData.category_id === 'shoes' && [
+                     <option key="shoes" value="shoes">Shoes</option>,
+                     <option key="sandals" value="sandals">Sandals</option>,
+                     <option key="mules" value="mules">Mules</option>,
+                     <option key="heels" value="heels">Heels</option>,
+                     <option key="flats" value="flats">Flats</option>,
+                     <option key="sneakers" value="sneakers">Sneakers</option>,
+                     <option key="slippers" value="slippers">Slippers</option>,
+                   ]}
+                 </select>
+               </div>
+               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Selling Price (NGN)</label>
                 <input 
                   type="number" 

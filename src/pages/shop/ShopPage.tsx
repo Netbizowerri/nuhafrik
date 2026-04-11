@@ -8,6 +8,54 @@ import { ProductCard } from '../../components/product/ProductCard';
 import { Seo } from '../../components/seo/Seo';
 import { BRAND_NAME, absoluteUrl } from '../../lib/seo';
 
+const FOOTWEAR_FILTER_SLUGS = new Set(['shoe', 'shoes', 'footwear', 'footwears']);
+const FOOTWEAR_KEYWORDS = [
+  'shoe',
+  'shoes',
+  'footwear',
+  'sandal',
+  'sandals',
+  'mule',
+  'mules',
+  'heel',
+  'heels',
+  'flat',
+  'flats',
+  'loafer',
+  'loafers',
+  'sneaker',
+  'sneakers',
+  'slide',
+  'slides',
+  'slipper',
+  'slippers',
+  'boot',
+  'boots',
+  'wedge',
+  'wedges',
+  'pump',
+  'pumps',
+  'clog',
+  'clogs',
+];
+
+const normalizeValue = (value?: string | null) => value?.trim().toLowerCase() || '';
+
+const hasFootwearKeyword = (value: string) => FOOTWEAR_KEYWORDS.some((keyword) => value.includes(keyword));
+
+const isFootwearProduct = (product: Product) => {
+  const category = normalizeValue(product.category_id);
+  const subcategory = normalizeValue(product.subcategory_id);
+  const name = normalizeValue(product.name);
+  const tags = (product.tags || []).map((tag) => normalizeValue(tag)).join(' ');
+
+  if (FOOTWEAR_FILTER_SLUGS.has(category) || FOOTWEAR_FILTER_SLUGS.has(subcategory)) {
+    return true;
+  }
+
+  return [subcategory, name, tags].some((value) => hasFootwearKeyword(value));
+};
+
 export const ShopPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,11 +71,18 @@ export const ShopPage = () => {
         const q = query(collection(db, 'products'));
         const snap = await getDocs(q);
         const allProducts = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product));
+
         const categoryMatchedProducts = normalizedCategoryFilter
-          ? allProducts.filter(
-              (product) => product.category_id?.trim().toLowerCase() === normalizedCategoryFilter
-            )
-          : allProducts;
+           ? allProducts.filter(
+               (product) => {
+                 // Footwear records can be stored under multiple category/subcategory values.
+                 if (FOOTWEAR_FILTER_SLUGS.has(normalizedCategoryFilter)) {
+                   return isFootwearProduct(product);
+                 }
+                 return normalizeValue(product.category_id) === normalizedCategoryFilter;
+               }
+             )
+           : allProducts;
 
         setProducts(categoryMatchedProducts);
       } catch (error) {

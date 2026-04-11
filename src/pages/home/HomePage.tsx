@@ -26,19 +26,21 @@ export const HomePage = () => {
         const productsData = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Product));
 
         const sortedProducts = [...productsData].sort((a, b) => {
-          const getTime = (val: any) => {
-            if (!val) return 0;
-            if (val.seconds) return val.seconds * 1000;
-            if (val instanceof Date) return val.getTime();
-            if (typeof val === 'string') return new Date(val).getTime();
-            return 0;
-          };
-          return getTime(b.created_at) - getTime(a.created_at);
-        });
+           const getTime = (val: any) => {
+             if (!val) return 0;
+             if (val.seconds) return val.seconds * 1000;
+             if (val instanceof Date) return val.getTime();
+             if (typeof val === 'string') return new Date(val).getTime();
+             return 0;
+           };
+           return getTime(b.created_at) - getTime(a.created_at);
+         });
 
-        const featuredProducts = sortedProducts.filter((p) => p.metadata?.is_featured).slice(0, 8);
-        setNewArrivals(sortedProducts.slice(0, 8));
-        setFeatured(featuredProducts.length > 0 ? featuredProducts : sortedProducts.slice(0, 8));
+         const featuredProducts = sortedProducts.filter((p) => p.metadata?.is_featured).slice(0, 8);
+         // New Arrivals: last 4 products (most recently added)
+         setNewArrivals(sortedProducts.slice(0, 4));
+         // Featured Products: first 8 products (oldest/uploaded first)
+         setFeatured(featuredProducts.length > 0 ? featuredProducts : sortedProducts.slice(-8).reverse());
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {

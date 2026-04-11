@@ -23,10 +23,9 @@ interface MobileMenuProps {
 }
 
 const categories = [
-  { name: 'All Clothing', icon: Shirt, slug: 'clothing' },
-  { name: 'Accessories', icon: Gem, slug: 'accessories' },
-  { name: 'Bags & Purses', icon: Briefcase, slug: 'bags' },
-  { name: 'Footwear', icon: Footprints, slug: 'shoes' },
+  { name: 'CLOTHING', icon: Shirt, slug: 'clothing' },
+  { name: 'ACCESSORIES', icon: Gem, slug: 'accessories' },
+  { name: 'FOOTWEARS', icon: Footprints, slug: 'shoes' },
 ];
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
