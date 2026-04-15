@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { collection, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { Search } from 'lucide-react';
 import { db } from '../../lib/firebase';
+import { isPermissionDeniedError } from '../../lib/firebaseErrors';
 import { Order } from '../../types';
 import { cn, formatCurrency, formatDate } from '../../lib/utils';
 
@@ -13,17 +14,24 @@ export const AdminOrdersPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const ordersQuery = query(collection(db, 'orders'), orderBy('created_at', 'desc'));
     const unsubscribe = onSnapshot(
       ordersQuery,
       (snapshot) => {
+        setError(null);
         setOrders(snapshot.docs.map((orderDoc) => ({ id: orderDoc.id, ...orderDoc.data() } as Order)));
         setLoading(false);
       },
       (error) => {
         console.error('Error fetching admin orders:', error);
+        setError(
+          isPermissionDeniedError(error)
+            ? 'Firebase denied order access for this admin session. Deploy the live Firestore rules before managing orders here.'
+            : 'Unable to load orders right now.'
+        );
         setLoading(false);
       }
     );
@@ -58,6 +66,15 @@ export const AdminOrdersPage = () => {
       setUpdatingOrderId(null);
     }
   };
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+        <p className="font-bold">Order access is blocked by Firestore permissions.</p>
+        <p className="mt-2 leading-7">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">

@@ -16,6 +16,7 @@ import { cn, formatCurrency } from '../../lib/utils';
 import { Product } from '../../types';
 import { collection, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { isPermissionDeniedError } from '../../lib/firebaseErrors';
 import { ProductFormModal } from '../../components/admin/ProductFormModal';
 
 export const AdminProductsPage = () => {
@@ -25,10 +26,12 @@ export const AdminProductsPage = () => {
   const [filterCategory, setFilterCategory] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      setError(null);
       // Fetch without orderBy to avoid index issues with mixed date types
       const q = query(collection(db, 'products'));
       const snap = await getDocs(q);
@@ -49,6 +52,11 @@ export const AdminProductsPage = () => {
       setProducts(sorted);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setError(
+        isPermissionDeniedError(error)
+          ? 'Firebase denied product access for this admin session. Deploy the live Firestore rules before managing inventory here.'
+          : 'Unable to load products right now.'
+      );
     } finally {
       setLoading(false);
     }
@@ -95,6 +103,15 @@ export const AdminProductsPage = () => {
     const matchesCategory = filterCategory === 'All' || p.category_id === filterCategory;
     return matchesSearch && matchesCategory;
   });
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+        <p className="font-bold">Product access is blocked by Firestore permissions.</p>
+        <p className="mt-2 leading-7">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">

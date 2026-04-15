@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp, getDocs, query, limit, orderBy } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { db } from '../../lib/firebase';
+import { isPermissionDeniedError } from '../../lib/firebaseErrors';
 import { Button } from '../../components/ui/Button';
 import { generatePlaceholderProducts } from '../../lib/gemini';
 import { 
@@ -34,10 +35,12 @@ export const AdminDashboard = () => {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [topProducts, setTopProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        setError(null);
         // Fetch Stats
         const productsSnap = await getDocs(collection(db, 'products'));
         const ordersSnap = await getDocs(collection(db, 'orders'));
@@ -64,6 +67,11 @@ export const AdminDashboard = () => {
 
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        setError(
+          isPermissionDeniedError(error)
+            ? 'Firebase denied access to products, orders, or users for this admin session. Deploy the live Firestore rules so the dashboard can load real data.'
+            : 'Unable to load dashboard data right now.'
+        );
       } finally {
         setIsLoading(false);
       }
@@ -195,6 +203,15 @@ export const AdminDashboard = () => {
     return (
       <div className="flex h-96 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+        <p className="font-bold">Dashboard access is blocked by Firestore permissions.</p>
+        <p className="mt-2 leading-7">{error}</p>
       </div>
     );
   }

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, User } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, User } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { ArrowLeft, ArrowRight, Lock, LogIn, Mail, User as UserIcon } from 'lucide-react';
-import { auth, db } from '../../lib/firebase';
+import { auth, db, isConfiguredAdminEmail } from '../../lib/firebase';
+import { isPermissionDeniedError } from '../../lib/firebaseErrors';
 import { Button } from '../../components/ui/Button';
 import { Seo } from '../../components/seo/Seo';
 import { BRAND_NAME } from '../../lib/seo';
@@ -68,7 +69,7 @@ export const LoginPage = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as any)?.from?.pathname || '/account';
+  const requestedPath = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
 
   const syncUserProfile = async (user: User, name?: string) => {
     const path = `users/${user.uid}`;
@@ -78,23 +79,48 @@ export const LoginPage = () => {
       try {
         userDoc = await getDoc(userDocRef);
       } catch (readErr) {
+        if (isPermissionDeniedError(readErr)) {
+          console.warn('Skipping profile read during login because Firestore denied access.', readErr);
+          return;
+        }
         handleFirestoreError(readErr, OperationType.GET, path);
         return;
       }
 
-      if (!userDoc.exists()) {
-        try {
-          await setDoc(userDocRef, {
+      const existingProfile = userDoc.exists() ? userDoc.data() : null;
+      const normalizedEmail = user.email?.trim().toLowerCase() || null;
+      const resolvedDisplayName =
+        name?.trim() ||
+        existingProfile?.displayName ||
+        existingProfile?.name ||
+        user.displayName ||
+        normalizedEmail?.split('@')[0] ||
+        'Nuhafrik Customer';
+      const isAdminUser =
+        existingProfile?.role === 'admin' || isConfiguredAdminEmail(normalizedEmail);
+
+      try {
+        await setDoc(
+          userDocRef,
+          {
             uid: user.uid,
-            email: user.email,
-            displayName: name || user.displayName || user.email?.split('@')[0],
-            photoURL: user.photoURL || null,
-            role: user.email === 'netbiz0925@gmail.com' ? 'admin' : 'customer',
-            created_at: serverTimestamp(),
-          });
-        } catch (writeErr) {
-          handleFirestoreError(writeErr, OperationType.WRITE, path);
+            email: normalizedEmail,
+            displayName: resolvedDisplayName,
+            name: resolvedDisplayName,
+            phone: existingProfile?.phone || '',
+            photoURL: user.photoURL || existingProfile?.photoURL || null,
+            role: isAdminUser ? 'admin' : 'customer',
+            created_at: existingProfile?.created_at || serverTimestamp(),
+            updated_at: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      } catch (writeErr) {
+        if (isPermissionDeniedError(writeErr)) {
+          console.warn('Skipping profile write during login because Firestore denied access.', writeErr);
+          return;
         }
+        handleFirestoreError(writeErr, OperationType.WRITE, path);
       }
     } catch (err) {
       if (err instanceof Error && err.message.startsWith('{')) throw err;
@@ -102,32 +128,13 @@ export const LoginPage = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setError(null);
-    const provider = new GoogleAuthProvider();
 
-    try {
-      const result = await signInWithPopup(auth, provider);
-      await syncUserProfile(result.user);
-      navigate(from, { replace: true });
-    } catch (err: any) {
-      console.error('Google Login error:', err);
-      if (err.code === 'auth/popup-closed-by-user') {
-        setError('The login popup was closed before completion. Please try again.');
-      } else if (err.code === 'auth/operation-not-allowed') {
-        setError('Google login is not enabled in the Firebase Console. Please contact the administrator.');
-      } else {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
       setError('Please fill in all fields.');
       return;
     }
@@ -136,14 +143,22 @@ export const LoginPage = () => {
     setError(null);
 
     try {
+      let user: User;
+
       if (isSignUp) {
-        const result = await createUserWithEmailAndPassword(auth, email, password);
-        await syncUserProfile(result.user, displayName);
+        const result = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
+        user = result.user;
+        await syncUserProfile(user, displayName);
       } else {
-        const result = await signInWithEmailAndPassword(auth, email, password);
-        await syncUserProfile(result.user);
+        const result = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+        user = result.user;
+        await syncUserProfile(user);
       }
-      navigate(from, { replace: true });
+
+      const isAdminUser = isConfiguredAdminEmail(user.email || normalizedEmail);
+      const destination = requestedPath || (isAdminUser ? '/admin' : '/account');
+
+      navigate(isAdminUser && destination === '/account' ? '/admin' : destination, { replace: true });
     } catch (err: any) {
       console.error('Email Auth error:', err);
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
@@ -252,16 +267,7 @@ export const LoginPage = () => {
             </Button>
           </form>
 
-          <div className="my-8 flex items-center gap-4">
-            <div className="h-px flex-1 bg-[var(--color-border)]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)]">or continue with</span>
-            <div className="h-px flex-1 bg-[var(--color-border)]" />
-          </div>
 
-          <Button onClick={handleGoogleLogin} disabled={loading} variant="outline" size="lg" className="w-full">
-            <img src="https://www.google.com/favicon.ico" alt="Google sign-in icon" className="h-5 w-5" width="20" height="20" />
-            Google
-          </Button>
 
           <div className="mt-8 space-y-4 text-center">
             <button onClick={() => setIsSignUp(!isSignUp)} className="text-sm font-semibold text-[var(--color-primary)] hover:underline">

@@ -1,26 +1,36 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 /**
  * Higher-Order Component that blocks non-admin users from accessing protected routes.
- * Redirects to the home page if the user is not an admin.
+ * Redirects unauthenticated users to login and signed-in non-admin users to account.
  */
 export const withAdminAuth = <P extends object>(
   WrappedComponent: React.ComponentType<P>
 ) => {
   const AdminProtectedComponent: React.FC<P> = (props) => {
     const { isAdmin, loading, user } = useAuth();
+    const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!loading && (!user || !isAdmin)) {
-        console.warn('Unauthorized access attempt to admin route.');
-        navigate('/');
+      if (loading) {
+        return;
       }
-    }, [isAdmin, loading, user, navigate]);
+
+      if (!user) {
+        navigate('/login', { replace: true, state: { from: location } });
+        return;
+      }
+
+      if (!isAdmin) {
+        console.warn('Unauthorized access attempt to admin route.');
+        navigate('/account', { replace: true });
+      }
+    }, [isAdmin, loading, location, navigate, user]);
 
     if (loading) {
       return (

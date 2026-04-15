@@ -1,20 +1,59 @@
-import { initializeApp, getApps } from 'firebase-admin/app';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { readFileSync } from 'fs';
+import { initializeApp as initializeAdminApp, getApps as getAdminApps } from 'firebase-admin/app';
+import { getFirestore as getAdminFirestore, FieldValue } from 'firebase-admin/firestore';
+import { initializeApp as initializeClientApp, getApps as getClientApps } from 'firebase/app';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getFirestore as getClientFirestore, serverTimestamp, setDoc } from 'firebase/firestore';
 
-// Initialize Firebase Admin using the same pattern as the server
-if (!getApps().length) {
-  try {
-    initializeApp();
-  } catch (error) {
-    console.error('Firebase Admin initialization failed:', error);
-    process.exit(1);
-  }
-}
+type FirebaseAppletConfig = {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  firestoreDatabaseId?: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+};
 
-const db = getFirestore();
-const productsCollection = db.collection('products');
+type ProductSeed = {
+  name: string;
+  slug: string;
+  description: string;
+  category_id: string;
+  subcategory_id: string;
+  tags: string[];
+  images: Array<{
+    url: string;
+    alt: string;
+    is_primary: boolean;
+  }>;
+  pricing: {
+    original_price: number;
+    selling_price: number;
+    is_on_sale: boolean;
+  };
+  variants: {
+    sizes: string[];
+    colors: Array<{
+      id: string;
+      name: string;
+      hex: string;
+    }>;
+  };
+  metadata: {
+    is_featured: boolean;
+    is_new_arrival: boolean;
+    is_best_seller: boolean;
+  };
+  inventory: number;
+  published: boolean;
+};
 
-const products = [
+const firebaseConfig = JSON.parse(
+  readFileSync('./firebase-applet-config.json', 'utf-8')
+) as FirebaseAppletConfig;
+
+const products: ProductSeed[] = [
   {
     name: 'Organza Poker dot Top',
     slug: 'organza-poker-dot-top',
@@ -180,21 +219,93 @@ const products = [
   }
 ];
 
-async function addProducts() {
-  console.log('Starting to add products with admin SDK...');
-  for (const product of products) {
-    try {
-      await productsCollection.doc(product.slug).set({
-        ...product,
-        created_at: FieldValue.serverTimestamp()
-      });
-      console.log(`Product "${product.name}" added/updated successfully.`);
-    } catch (e) {
-      console.error(`Error adding product "${product.name}":`, e);
-    }
+const restoreWithAdminSdk = async () => {
+  if (!getAdminApps().length) {
+    initializeAdminApp({
+      projectId: firebaseConfig.projectId,
+    });
   }
-  console.log('Finished adding products.');
-  process.exit(0);
+
+  const db = getAdminFirestore();
+  const productsCollection = db.collection('products');
+
+  console.log('Restoring products with Firebase Admin SDK...');
+  for (const product of products) {
+    await productsCollection.doc(product.slug).set({
+      ...product,
+      created_at: FieldValue.serverTimestamp(),
+    });
+    console.log(`Restored via Admin SDK: ${product.name}`);
+  }
+};
+
+const restoreWithClientAuth = async () => {
+  const email = process.env.NUHAFRIK_ADMIN_EMAIL;
+  const password = process.env.NUHAFRIK_ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error(
+      'Firebase Admin credentials are unavailable, and client fallback is missing NUHAFRIK_ADMIN_EMAIL or NUHAFRIK_ADMIN_PASSWORD.'
+    );
+  }
+
+  const clientApp =
+    getClientApps().find((app) => app.name === 'product-restore-client') ||
+    initializeClientApp(firebaseConfig, 'product-restore-client');
+  const auth = getAuth(clientApp);
+  const db = getClientFirestore(clientApp, firebaseConfig.firestoreDatabaseId || '(default)');
+
+  console.log(`Signing in as ${email} for product restore...`);
+  const credential = await signInWithEmailAndPassword(auth, email, password);
+
+  await setDoc(
+    doc(db, 'users', credential.user.uid),
+    {
+      uid: credential.user.uid,
+      email: credential.user.email?.trim().toLowerCase() || email,
+      displayName: credential.user.displayName || 'Nuhafrik Owner',
+      name: credential.user.displayName || 'Nuhafrik Owner',
+      phone: '',
+      photoURL: credential.user.photoURL || null,
+      role: 'admin',
+      updated_at: serverTimestamp(),
+    },
+    { merge: true }
+  );
+  console.log('Ensured admin profile exists for the signed-in owner account.');
+
+  console.log('Restoring products with authenticated client SDK fallback...');
+  for (const product of products) {
+    await setDoc(
+      doc(db, 'products', product.slug),
+      {
+        ...product,
+        created_at: serverTimestamp(),
+      },
+      { merge: true }
+    );
+    console.log(`Restored via client auth: ${product.name}`);
+  }
+};
+
+async function addProducts() {
+  try {
+    await restoreWithAdminSdk();
+    console.log(`Finished restoring ${products.length} products with Firebase Admin SDK.`);
+    process.exit(0);
+  } catch (adminError) {
+    console.warn('Firebase Admin SDK restore failed. Falling back to authenticated client restore.');
+    console.warn(adminError);
+  }
+
+  try {
+    await restoreWithClientAuth();
+    console.log(`Finished restoring ${products.length} products with authenticated client restore.`);
+    process.exit(0);
+  } catch (clientError) {
+    console.error('Product restore failed for both Admin SDK and client fallback:', clientError);
+    process.exit(1);
+  }
 }
 
 addProducts();

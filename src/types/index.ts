@@ -81,8 +81,12 @@ export interface Order {
 
 export interface UserProfile {
   uid: string;
-  name: string;
-  phone: string;
-  email?: string;
+  displayName?: string;
+  name?: string;
+  phone?: string;
+  email?: string | null;
+  photoURL?: string | null;
   role: 'customer' | 'admin';
+  created_at?: any;
+  updated_at?: any;
 }

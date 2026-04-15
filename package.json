@@ -9,6 +9,8 @@
     "preview": "node ./node_modules/vite/bin/vite.js preview",
     "clean": "node -e \"try{require('fs').rmSync('dist',{recursive:true,force:true})}catch(e){process.exit(0)}\"",
     "lint": "node ./node_modules/typescript/bin/tsc --noEmit",
+    "provision:admin": "node ./scripts/provision-admin.mjs",
+    "deploy:firestore-rules": "node ./scripts/deploy-firestore-rules.mjs",
     "transform:prd": "node ./scripts/transform-prd-to-ecommerce-production.mjs",
     "transform:prd:audit": "node ./scripts/transform-prd-to-ecommerce-production.mjs --audit"
   },
@@ -24,7 +26,7 @@
     "express": "^4.22.1",
     "express-rate-limit": "^8.3.2",
     "firebase": "^12.11.0",
-    "firebase-admin": "^10.3.0",
+    "firebase-admin": "^13.8.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.546.0",
