@@ -8,6 +8,7 @@ import { Product } from '../../types';
 import { ProductCard } from '../../components/product/ProductCard';
 import { cn } from '../../lib/utils';
 import { Seo } from '../../components/seo/Seo';
+import { PromoAlert } from '../../components/promo/PromoAlert';
 import { BRAND_NAME, BUSINESS_DETAILS, absoluteUrl } from '../../lib/seo';
 
 const featuredTabs = ['All', 'Featured', 'Latest'] as const;
@@ -96,6 +97,7 @@ const visibleFeatured =
   return (
     <div className="flex flex-col gap-[var(--space-12)] pb-[var(--space-20)]">
       <Seo title={title} description={description} path="/" structuredData={structuredData} />
+      <PromoAlert />
       <section className="page-shell pb-[var(--space-12)] pt-[var(--space-4)] md:pt-[var(--space-5)]">
         <div className="space-y-5">
           <div className="overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--color-border)] bg-[linear-gradient(180deg,rgba(255,248,240,0.98),rgba(255,242,234,0.98))] shadow-[var(--shadow-lg)]">

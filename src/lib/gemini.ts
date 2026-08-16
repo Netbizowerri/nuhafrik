@@ -2,7 +2,14 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+function getAi(): GoogleGenAI {
+  if (!GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY is not set');
+  }
+  return new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+}
 
 export async function generatePlaceholderProducts() {
   const prompt = `
@@ -46,6 +53,7 @@ export async function generatePlaceholderProducts() {
   `;
 
   try {
+    const ai = getAi();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
