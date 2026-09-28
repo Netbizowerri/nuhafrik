@@ -162,6 +162,8 @@ Commands:
 
 ## 📝 Changelog
 
+- **Meta Pixel** — Facebook pixel (`1056028156976499`) added to `index.html` head, with `PageView` tracked on every route via `src/components/tracking/FacebookPixel.tsx` and a `Lead` event fired on contact-form submission.
+- **Social links** — footer and contact page now link to Instagram (`@Nuhafrik_clothing`) and Facebook; removed the X (Twitter) social link.
 - **Promo alert** — homepage shows a timed "Buy 2, Get 1 FREE" modal (`src/components/promo/PromoAlert.tsx`).
 - **Gemini key guard** — the Gemini client is now lazy-initialized so a missing `GEMINI_API_KEY` no longer crashes the app at load.
 - **Firebase Admin** — pinned to `^12.1.0` for the provisioning / rules-deploy scripts.

@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { CheckCircle2, Clock, Mail, MapPin, Phone, Send } from 'lucide-react';
+import { CheckCircle2, Clock, Facebook, Instagram, Mail, MapPin, Phone, Send } from 'lucide-react';
+
+const SOCIAL_LINKS = [
+  {
+    icon: Instagram,
+    label: 'Nuhafrik on Instagram',
+    href: 'https://instagram.com/Nuhafrik_clothing',
+  },
+  {
+    icon: Facebook,
+    label: 'Nuhafrik on Facebook',
+    href: 'https://www.facebook.com/profile.php?id=100076503183921',
+  },
+] as const;
 import { Button } from '../../components/ui/Button';
 import { Seo } from '../../components/seo/Seo';
-import { BRAND_NAME, BUSINESS_DETAILS, absoluteUrl } from '../../lib/seo';
+import { BRAND_NAME, BUSINESS_DETAILS, DEFAULT_OG_IMAGE_PATH, absoluteUrl } from '../../lib/seo';
 
 export const ContactPage = () => {
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'success'>('idle');
@@ -16,7 +29,7 @@ export const ContactPage = () => {
     name: BUSINESS_DETAILS.name,
     description: BUSINESS_DETAILS.description,
     url: absoluteUrl('/contact'),
-    image: absoluteUrl('/og-default.svg'),
+    image: absoluteUrl(DEFAULT_OG_IMAGE_PATH),
     telephone: BUSINESS_DETAILS.phone,
     email: BUSINESS_DETAILS.email,
     address: {
@@ -32,6 +45,7 @@ export const ContactPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    window.fbq?.('track', 'Lead');
     setFormState('submitting');
     setTimeout(() => setFormState('success'), 1500);
   };
@@ -90,6 +104,23 @@ export const ContactPage = () => {
               <div>
                 <p className="text-sm font-semibold">Email</p>
                 <p className="mt-1 text-sm text-[rgba(255,250,242,0.72)]">hello@nuhafrik.com</p>
+              </div>
+            </div>
+            <div className="border-t border-white/10 pt-6">
+              <p className="text-sm font-semibold">Follow Us</p>
+              <div className="mt-4 flex gap-3">
+                {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[var(--color-text-inverse)] transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]"
+                  >
+                    <Icon size={18} />
+                  </a>
+                ))}
               </div>
             </div>
           </div>

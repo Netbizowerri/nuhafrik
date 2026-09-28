@@ -39,3 +39,4 @@ React 19 + Vite + TypeScript + Tailwind v4 e-commerce SPA (Nuhafrik) with an emb
 - `vite.config.ts` has a comment warning not to modify the HMR block — `DISABLE_HMR=true` disables HMR for agent-editing environments.
 - Deployment is Vercel SPA (vercel.json rewrites all routes to `index.html`). README notes Vercel domains must be added to Firebase Auth authorized domains for login to work.
 - `docs/TRANSFORM_PRD_TO_ECOMMERCE_PRODUCTION.md` + `docs/NUHAFRIK_PRODUCTION_MEMORY_SNAPSHOT.md` document the production baseline and reapply workflow; check them before restructuring.
+- `docs/SEO_SHARE_PREVIEW_WORK_SESSION.md` is the active work-in-progress log for the SEO/social-share-preview project (product slug URLs, OG prerender middleware/PHP). **Read it first when resuming that work** — it contains the current Vercel middleware blocker and next steps.

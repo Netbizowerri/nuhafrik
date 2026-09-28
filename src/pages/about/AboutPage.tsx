@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Heart, Rocket, Shield, Sparkles, Users } from 'lucide-react';
 import { Seo } from '../../components/seo/Seo';
-import { BRAND_NAME, BUSINESS_DETAILS, absoluteUrl } from '../../lib/seo';
+import { BRAND_NAME, BUSINESS_DETAILS, DEFAULT_OG_IMAGE_PATH, absoluteUrl } from '../../lib/seo';
 
 export const AboutPage = () => {
   const missionPoints = [
@@ -40,7 +40,7 @@ export const AboutPage = () => {
       name: BUSINESS_DETAILS.name,
       description: BUSINESS_DETAILS.description,
       url: absoluteUrl('/'),
-      image: absoluteUrl('/og-default.svg'),
+      image: absoluteUrl(DEFAULT_OG_IMAGE_PATH),
     },
   ];
 

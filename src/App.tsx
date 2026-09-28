@@ -23,6 +23,7 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { AuthProvider } from './context/AuthContext';
 import { withAdminAuth } from './hoc/withAdminAuth';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { FacebookPixel } from './components/tracking/FacebookPixel';
 
 const ProtectedAdminDashboard = withAdminAuth(AdminDashboard);
 const ProtectedAdminProductsPage = withAdminAuth(AdminProductsPage);
@@ -34,6 +35,7 @@ export default function App() {
       <AuthProvider>
         <Router>
           <ScrollToTop />
+          <FacebookPixel />
           <Routes>
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<ProtectedAdminDashboard />} />
@@ -44,6 +46,7 @@ export default function App() {
             <Route element={<AppShell />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/shop" element={<ShopPage />} />
+              <Route path="/product/:category/:slug" element={<ProductDetailPage />} />
               <Route path="/product/:productId" element={<ProductDetailPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />

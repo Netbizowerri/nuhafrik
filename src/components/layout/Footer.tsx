@@ -1,6 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Mail, MapPin, Phone, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
+
+const SOCIAL_LINKS = [
+  {
+    icon: Instagram,
+    label: 'Nuhafrik on Instagram',
+    href: 'https://instagram.com/Nuhafrik_clothing',
+  },
+  {
+    icon: Facebook,
+    label: 'Nuhafrik on Facebook',
+    href: 'https://www.facebook.com/profile.php?id=100076503183921',
+  },
+] as const;
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -22,10 +35,13 @@ export const Footer = () => {
               Nuhafrik crafts contemporary African fashion with confident silhouettes, tactile detail, and an editorial approach to everyday dressing.
             </p>
             <div className="flex gap-3">
-              {[Instagram, Facebook, Twitter].map((Icon, index) => (
+              {SOCIAL_LINKS.map(({ icon: Icon, label, href }) => (
                 <a
-                  key={index}
-                  href="#"
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[var(--color-text-inverse)] transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]"
                 >
                   <Icon size={18} />

@@ -1,4 +1,4 @@
-User-agent: *
+﻿User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /dashboard
@@ -8,4 +8,20 @@ Disallow: /checkout
 Disallow: /cart
 Disallow: /search
 
-Sitemap: https://nuhafrik.vercel.app/sitemap.xml
+# Explicitly welcome AI search crawlers for GEO (AI Overviews, ChatGPT, Perplexity, Claude)
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: GPTBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://www.nuhafrikclothings.com/sitemap.xml

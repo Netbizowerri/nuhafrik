@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { collection, doc, getDoc, getDocs, limit, query } from 'firebase/firestore';
-import { ChevronLeft, Heart, Phone, Share2, ShieldCheck, ShoppingBag, Star, Truck } from 'lucide-react';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { collection, doc, getDoc, getDocs, limit, query, where } from 'firebase/firestore';
+import { Check, ChevronLeft, Heart, Phone, Share2, ShieldCheck, ShoppingBag, Star, Truck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { db } from '../../lib/firebase';
 import { Product } from '../../types';
@@ -10,10 +10,12 @@ import { cn, formatCurrency } from '../../lib/utils';
 import { useCartStore } from '../../store/useCartStore';
 import { ProductCard } from '../../components/product/ProductCard';
 import { Seo } from '../../components/seo/Seo';
-import { BRAND_NAME, absoluteUrl } from '../../lib/seo';
+import { BRAND_NAME } from '../../lib/seo';
+import { getProductPath, getProductUrl } from '../../lib/productUrl';
 
 export const ProductDetailPage = () => {
-  const { productId } = useParams();
+  const { category, slug, productId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,18 +23,33 @@ export const ProductDetailPage = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [activeImage, setActiveImage] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [shareCopied, setShareCopied] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
   useEffect(() => {
     const fetchProduct = async () => {
-      if (!productId) return;
+      if (!slug && !productId) return;
+      setLoading(true);
       try {
-        const snap = await getDoc(doc(db, 'products', productId));
-        if (snap.exists()) {
-          const data = snap.data() as Product;
-          setProduct({ id: snap.id, ...data });
-          setSelectedSize(data.variants.sizes[0] || '');
-          setSelectedColor(data.variants.colors[0]?.name || '');
+        let found: (Product & { id: string }) | null = null;
+
+        if (slug) {
+          const snap = await getDocs(query(collection(db, 'products'), where('slug', '==', slug), limit(1)));
+          found = snap.docs[0] ? ({ id: snap.docs[0].id, ...snap.docs[0].data() } as Product & { id: string }) : null;
+        } else if (productId) {
+          const byId = await getDoc(doc(db, 'products', productId));
+          if (byId.exists()) {
+            found = { id: byId.id, ...byId.data() } as Product & { id: string };
+          } else {
+            const bySlug = await getDocs(query(collection(db, 'products'), where('slug', '==', productId), limit(1)));
+            found = bySlug.docs[0] ? ({ id: bySlug.docs[0].id, ...bySlug.docs[0].data() } as Product & { id: string }) : null;
+          }
+        }
+
+        if (found) {
+          setProduct(found);
+          setSelectedSize(found.variants.sizes[0] || '');
+          setSelectedColor(found.variants.colors[0]?.name || '');
         }
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -42,7 +59,7 @@ export const ProductDetailPage = () => {
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [slug, productId]);
 
   useEffect(() => {
     const fetchRelatedProducts = async () => {
@@ -81,7 +98,7 @@ export const ProductDetailPage = () => {
         <Seo
           title={`Product Details | ${BRAND_NAME}`}
           description="Browse product details, pricing, sizes, and delivery information for this Nuhafrik item."
-          path={productId ? `/product/${productId}` : '/product'}
+          path="/product"
         />
         Loading product details...
       </div>
@@ -94,7 +111,7 @@ export const ProductDetailPage = () => {
         <Seo
           title={`Product Not Found | ${BRAND_NAME}`}
           description="The requested Nuhafrik product could not be found."
-          path={productId ? `/product/${productId}` : '/product'}
+          path="/product"
           noindex
         />
         Product not found.
@@ -114,7 +131,10 @@ export const ProductDetailPage = () => {
       subtotal: product.pricing.selling_price,
     });
   };
-  const productPath = `/product/${product.id}`;
+  const productPath = getProductPath(product);
+  const productUrl = getProductUrl(product);
+  const canonicalPath = productPath;
+  const primaryImage = product.images.find((image) => image.is_primary) || product.images[0];
   const categoryLabel = product.category_id.replace(/[-_]/g, ' ');
   const pageTitle = `${product.name} | ${BRAND_NAME}`;
   const description = `${product.name} at Nuhafrik with ${categoryLabel} styling, quality finishing, and delivery across Nigeria. Shop sizes, colors, and current pricing online.`;
@@ -132,7 +152,7 @@ export const ProductDetailPage = () => {
     },
     offers: {
       '@type': 'Offer',
-      url: absoluteUrl(productPath),
+      url: productUrl,
       priceCurrency: 'NGN',
       price: product.pricing.selling_price,
       availability: product.inventory > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
@@ -140,17 +160,60 @@ export const ProductDetailPage = () => {
     },
   };
 
+  if (location.pathname !== canonicalPath) {
+    return <Navigate to={canonicalPath} replace />;
+  }
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${product.name} | Nuhafrik`,
+      text: `Shop ${product.name} at Nuhafrik Clothing and Accessories Store`,
+      url: productUrl,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(productUrl);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      }
+    } catch (error) {
+      if ((error as Error)?.name !== 'AbortError') {
+        try {
+          await navigator.clipboard.writeText(productUrl);
+          setShareCopied(true);
+          setTimeout(() => setShareCopied(false), 2000);
+        } catch (clipboardError) {
+          console.error('Error sharing product:', clipboardError);
+        }
+      }
+    }
+  };
+
   return (
     <div className="page-shell page-stack">
-      <Seo title={pageTitle} description={description} path={productPath} type="product" structuredData={structuredData} />
+      <Seo
+        title={pageTitle}
+        description={description}
+        path={productPath}
+        image={primaryImage?.url}
+        type="product"
+        structuredData={structuredData}
+        product={{
+          price: product.pricing.selling_price,
+          currency: 'NGN',
+          availability: product.inventory > 0 ? 'in stock' : 'out of stock',
+        }}
+      />
       <section className="flex flex-wrap items-center justify-between gap-4 pt-4">
         <button onClick={() => navigate(-1)} className="btn-base btn-outline btn-sm">
           <ChevronLeft size={16} />
           Back
         </button>
         <div className="flex gap-3">
-          <button className="btn-base btn-outline btn-sm !h-11 !w-11 !p-0" aria-label="Share product">
-            <Share2 size={18} />
+          <button onClick={handleShare} className="btn-base btn-outline btn-sm !h-11 !w-11 !p-0" aria-label="Share product" title="Share product link">
+            {shareCopied ? <Check size={18} /> : <Share2 size={18} />}
           </button>
           <button className="btn-base btn-outline btn-sm !h-11 !w-11 !p-0" aria-label="Save product">
             <Heart size={18} />

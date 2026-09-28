@@ -1,6 +1,7 @@
 export const BRAND_NAME = 'Nuhafrik Clothing and Accessories Store';
-export const DEFAULT_SITE_URL = 'https://nuhafrik.vercel.app';
-export const DEFAULT_OG_IMAGE_PATH = '/og-default.svg';
+export const BRAND_SHORT_NAME = 'Nuhafrik';
+export const DEFAULT_SITE_URL = 'https://www.nuhafrikclothings.com';
+export const DEFAULT_OG_IMAGE_PATH = '/og-default.png';
 
 export const BUSINESS_DETAILS = {
   name: BRAND_NAME,

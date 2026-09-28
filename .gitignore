@@ -12,3 +12,4 @@ server.err.log
 .kilo/
 firebase-login-url.txt
 scripts/service-account.json
+.vercel

@@ -4,6 +4,7 @@ import { Heart, ShoppingBag } from 'lucide-react';
 import { Product } from '../../types';
 import { formatCurrency, cn } from '../../lib/utils';
 import { useCartStore } from '../../store/useCartStore';
+import { getProductPath } from '../../lib/productUrl';
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +15,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
   const addItem = useCartStore((state) => state.addItem);
   const primaryImage = product.images.find((img) => img.is_primary) || product.images[0];
   const categoryLabel = product.category_id.replace(/[-_]/g, ' ');
+  const productPath = getProductPath(product);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,7 +48,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
       )}
     >
       <div className="relative overflow-hidden rounded-b-none rounded-t-[var(--radius-card)]">
-        <Link to={`/product/${product.id}`} className="relative block aspect-[3/4] overflow-hidden bg-[var(--color-surface)]">
+        <Link to={productPath} className="relative block aspect-[3/4] overflow-hidden bg-[var(--color-surface)]">
           {primaryImage ? (
             <img
               src={primaryImage.url}
@@ -83,7 +85,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
 
         <div className="pointer-events-none absolute inset-x-4 bottom-4 flex translate-y-full flex-col gap-3 opacity-0 transition-all duration-300 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
           <Link
-            to={`/product/${product.id}`}
+            to={productPath}
             className="btn-base btn-outline btn-sm justify-center border-white text-white hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]"
           >
             Quick View
@@ -101,7 +103,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, className }) 
 
       <div className="flex flex-col gap-3 p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--color-text-muted)]">{categoryLabel}</p>
-        <Link to={`/product/${product.id}`} className="product-title-clamp text-base font-semibold text-[var(--color-text-primary)]">
+        <Link to={productPath} className="product-title-clamp text-base font-semibold text-[var(--color-text-primary)]">
           {product.name}
         </Link>
         <div className="flex items-end gap-3">
